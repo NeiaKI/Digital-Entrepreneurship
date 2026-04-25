@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    outputFileTracingExcludes: {
+      "*": ["3D-ASSET/**/*"],
+    },
+  },
 };
 
 export default nextConfig;
