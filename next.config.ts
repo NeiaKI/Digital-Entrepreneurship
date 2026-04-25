@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    outputFileTracingExcludes: {
-      "*": ["3D-ASSET/**/*"],
-    },
+  outputFileTracingExcludes: {
+    "*": ["3D-ASSET/**/*"],
   },
 };
 
