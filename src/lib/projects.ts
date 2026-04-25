@@ -14,7 +14,7 @@ export { CATEGORY_LABELS, PROJECT_CATEGORIES };
 export type { PortfolioProject, PortfolioProjectPreview, ProjectCategory };
 
 export const CREATOR_PROFILE = {
-  name: "Neki",
+  name: "HILMI",
   roleTitle: "3D Environment & Creature Artist",
   bioShort:
     "Membangun aset 3D stylized-realistic untuk game, cinematic, dan visual storytelling.",
@@ -43,7 +43,7 @@ export const CREATOR_PROFILE = {
   ],
 } as const;
 
-const ASSET_ROOT = path.join(process.cwd(), "..", "3D-ASSET");
+const ASSET_ROOT = path.join(process.cwd(), "3D-ASSET");
 
 function toModelUrl(relativePath: string): string {
   const encodedPath = relativePath

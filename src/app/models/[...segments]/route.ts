@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const ASSET_ROOT = path.resolve(process.cwd(), "..", "3D-ASSET");
+const ASSET_ROOT = path.resolve(process.cwd(), "3D-ASSET");
 
 type RouteContext = {
   params: Promise<{ segments: string[] }>;

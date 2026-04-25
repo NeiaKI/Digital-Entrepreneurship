@@ -25,6 +25,9 @@ const categoryColorMap = {
 export function ProjectCard({ project, priority = false }: ProjectCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const categoryLabel = CATEGORY_LABELS[project.category];
+  
+  // Show preview if it's a priority (featured) project OR if user is hovering
+  const showPreview = priority || isHovered;
 
   return (
     <Card
@@ -34,30 +37,30 @@ export function ProjectCard({ project, priority = false }: ProjectCardProps) {
     >
       <div
         className={`relative w-full overflow-hidden border-b border-white/10 bg-gradient-to-br transition-all duration-500 ease-in-out ${
-          isHovered ? "h-52" : "h-40"
+          isHovered ? "h-56" : "h-48"
         } ${categoryColorMap[project.category]}`}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.16),transparent_65%)]" />
         
-        {/* 3D Preview on Hover */}
+        {/* Render 3D Preview based on priority or hover */}
         <div 
           className={`absolute inset-0 transition-opacity duration-700 ${
-            isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
+            showPreview ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
-          {isHovered && (
+          {showPreview && (
             <ModelPreview modelUrl={project.modelUrl} />
           )}
         </div>
 
         <div className="absolute -right-8 -bottom-10 h-36 w-36 rounded-full border border-white/20" />
         <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/40 px-2.5 py-1 text-[10px] font-medium tracking-tight text-zinc-100 backdrop-blur-md transition-all group-hover:border-cyan-400/50 group-hover:bg-cyan-950/40">
-          <Sparkles className={`size-3 text-cyan-200 ${isHovered ? "animate-pulse" : ""}`} />
-          {isHovered ? "Interacting..." : "Hover for 3D"}
+          <Sparkles className={`size-3 text-cyan-200 ${showPreview ? "animate-pulse" : ""}`} />
+          {priority ? "Highlighted Work" : (isHovered ? "Interacting..." : "Hover for 3D")}
         </div>
         
-        {!isHovered && (
-          <div className="absolute inset-x-4 bottom-4 flex items-end justify-between transition-opacity duration-300">
+        {!showPreview && (
+          <div className="absolute inset-x-4 bottom-4 flex items-end justify-between transition-opacity duration-300 pointer-events-none">
             <p className="font-heading text-lg font-semibold text-white drop-shadow-md">{project.title}</p>
             <ArrowUpRight className="size-5 text-cyan-100 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </div>

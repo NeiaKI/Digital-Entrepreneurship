@@ -28,7 +28,7 @@ export function SiteNavbar() {
             Portfolio
           </span>
           <span className="font-heading text-lg font-semibold text-white transition-colors group-hover:text-cyan-200">
-            Neki 3D Lab
+            HILMI 3D Lab
           </span>
         </Link>
 
@@ -59,12 +59,12 @@ export function SiteNavbar() {
           <Sheet>
             <SheetTrigger
               render={
-                <Button variant="outline" size="icon" className="border-white/20 bg-white/5" />
+                <Button variant="outline" size="icon" className="border-white/20 bg-white/5">
+                  <Menu className="size-4" />
+                  <span className="sr-only">Open navigation</span>
+                </Button>
               }
-            >
-              <Menu className="size-4" />
-              <span className="sr-only">Open navigation</span>
-            </SheetTrigger>
+            />
             <SheetContent side="right" className="border-white/10 bg-zinc-950 text-white">
               <SheetHeader>
                 <SheetTitle className="text-white">Navigate</SheetTitle>

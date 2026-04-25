@@ -6,6 +6,7 @@ import {
   Suspense,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { Canvas } from "@react-three/fiber";
@@ -78,13 +79,10 @@ function AssetModel({ modelUrl, wireframe }: { modelUrl: string; wireframe: bool
 
     clonedScene.traverse((object) => {
       const mesh = object as Mesh;
-
-      if (!mesh.isMesh || !mesh.material) {
-        return;
-      }
+      if (!mesh.isMesh || !mesh.material) return;
 
       if (Array.isArray(mesh.material)) {
-        mesh.material = mesh.material.map((material) => material.clone());
+        mesh.material = mesh.material.map((m) => m.clone());
       } else {
         mesh.material = mesh.material.clone();
       }
@@ -93,13 +91,27 @@ function AssetModel({ modelUrl, wireframe }: { modelUrl: string; wireframe: bool
     return clonedScene;
   }, [gltf.scene]);
 
+  // Cleanup effect to help GC
+  useEffect(() => {
+    return () => {
+      scene.traverse((object) => {
+        const mesh = object as Mesh;
+        if (mesh.isMesh) {
+          mesh.geometry.dispose();
+          if (Array.isArray(mesh.material)) {
+            mesh.material.forEach((m) => m.dispose());
+          } else {
+            mesh.material.dispose();
+          }
+        }
+      });
+    };
+  }, [scene]);
+
   useEffect(() => {
     scene.traverse((object) => {
       const mesh = object as Mesh;
-
-      if (!mesh.isMesh || !mesh.material) {
-        return;
-      }
+      if (!mesh.isMesh || !mesh.material) return;
 
       const applyWireframe = (material: Material) => {
         if ("wireframe" in material) {
@@ -184,10 +196,19 @@ export function ModelViewer({ modelUrl, title }: ModelViewerProps) {
   const [wireframe, setWireframe] = useState(false);
   const [resetSignal, setResetSignal] = useState(0);
   const [webGLSupported] = useState(checkWebGLAvailability);
+  const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMounted(true);
     useGLTF.preload(modelUrl, "https://www.gstatic.com/draco/versioned/decoders/1.5.5/");
   }, [modelUrl]);
+
+  if (!mounted) {
+    return (
+      <div className="h-[340px] w-full animate-pulse rounded-xl bg-zinc-900/50 sm:h-[460px]" />
+    );
+  }
 
   return (
     <div className="space-y-3">
@@ -237,11 +258,16 @@ export function ModelViewer({ modelUrl, title }: ModelViewerProps) {
 
       {webGLSupported ? (
         <CanvasErrorBoundary fallback={<ViewerUnavailable title={title} />}>
-          <div className="h-[340px] overflow-hidden rounded-xl border border-white/10 bg-black/40 sm:h-[460px]">
+          <div 
+            ref={containerRef}
+            className="h-[340px] overflow-hidden rounded-xl border border-white/10 bg-black/40 sm:h-[460px]"
+          >
             <Canvas
               camera={{ position: [0, 1.8, 4.5], fov: 42 }}
               dpr={[1, 2]}
               gl={{ antialias: true, powerPreference: "high-performance" }}
+              eventSource={containerRef}
+              eventPrefix="client"
             >
               <Suspense fallback={<LoadingFallback />}>
                 <StageLights preset={lightingPreset} />

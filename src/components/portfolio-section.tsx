@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { SectionReveal } from "@/components/section-reveal";
 import { ProjectCard } from "@/components/project-card";
@@ -20,6 +20,20 @@ type FilterValue = "all" | ProjectCategory;
 
 export function PortfolioSection({ projects }: PortfolioSectionProps) {
   const [activeCategory, setActiveCategory] = useState<FilterValue>("all");
+
+  // Restore category from sessionStorage on mount
+  useEffect(() => {
+    const savedCategory = sessionStorage.getItem("portfolio-active-category") as FilterValue;
+    if (savedCategory && (savedCategory === "all" || PROJECT_CATEGORIES.includes(savedCategory as any))) {
+      setActiveCategory(savedCategory);
+    }
+  }, []);
+
+  const handleCategoryChange = (value: string) => {
+    const category = value as FilterValue;
+    setActiveCategory(category);
+    sessionStorage.setItem("portfolio-active-category", category);
+  };
 
   const visibleProjects = useMemo(() => {
     if (activeCategory === "all") {
@@ -68,7 +82,7 @@ export function PortfolioSection({ projects }: PortfolioSectionProps) {
         </p>
       </div>
 
-      <Tabs value={activeCategory} onValueChange={(value) => setActiveCategory(value as FilterValue)}>
+      <Tabs value={activeCategory} onValueChange={handleCategoryChange}>
         <TabsList
           variant="line"
           className="h-auto w-full flex-wrap items-center justify-start gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-2"
