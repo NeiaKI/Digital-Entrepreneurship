@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Digital Entrepreneurship — 3D Asset Portfolio
 
-## Getting Started
+Personal portfolio website untuk memamerkan karya 3D secara interaktif langsung di browser. Dibangun untuk kebutuhan 3D artist yang ingin menampilkan aset-asetnya secara profesional kepada rekruter, klien, dan sesama artist.
 
-First, run the development server:
+## Fitur
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **3D Viewer Interaktif** — eksplorasi model `.glb` langsung di browser (rotate, zoom, pan)
+- **Portfolio Grid** — galeri karya dengan kategori (Animal, Building, Equipment, Item, dan lainnya)
+- **Project Detail** — informasi teknis tiap aset (software, polycount, deskripsi)
+- **About & Contact** — profil kreator dan form kontak
+- **Responsive** — tampilan optimal di desktop dan mobile
+
+## Kategori Aset 3D
+
+| Kategori | Contoh |
+|----------|--------|
+| Animal / Sea | Ikan, makhluk laut, sea creatures |
+| Building | Rumah jamur, arsitektur fantasy |
+| Equipment | Pedang, perisai, armor, aksesori |
+| Item | Potion, useable items |
+
+## Tech Stack
+
+- **Framework** — [Next.js](https://nextjs.org/) (App Router)
+- **Styling** — [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components** — [shadcn/ui](https://ui.shadcn.com/)
+- **3D Rendering** — Three.js / React Three Fiber
+- **Language** — TypeScript
+
+## Struktur Folder
+
+```
+├── src/
+│   ├── app/              # Next.js App Router (pages & API routes)
+│   ├── components/       # Komponen UI (navbar, viewer, portfolio, dll)
+│   └── lib/              # Data project & helper functions
+├── 3D-ASSET/             # File .glb aset 3D (lokal, tidak di-push ke repo)
+├── public/               # Static assets
+└── prd-portfolio-3d.md   # Product Requirements Document
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Menjalankan Lokal
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Install dependencies
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Jalankan development server
+npm run dev
+```
 
-## Learn More
+Buka [http://localhost:3000](http://localhost:3000) di browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Build & Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+npm run start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Catatan
 
-## Deploy on Vercel
+File `.glb` aset 3D berukuran besar (beberapa hingga 100MB+) disimpan lokal dan tidak dimasukkan ke repository. Untuk deployment production, aset 3D direkomendasikan di-host via CDN seperti Cloudflare R2 atau layanan storage sejenis.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Dibuat dengan Next.js + Three.js | 3D assets dibuat di Blender*
