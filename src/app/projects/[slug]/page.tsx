@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Box, Cpu, HardDrive, Layers, Workflow } from "lucide-react";
+import { ArrowLeft, Box, Cpu, Download, HardDrive, ImageIcon, Layers, Workflow } from "lucide-react";
 
 import { ModelViewer } from "@/components/model-viewer";
 import { Badge } from "@/components/ui/badge";
@@ -76,6 +76,18 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           </p>
         </section>
 
+        {/* Hero image — beauty render di atas 3D viewer */}
+        {project.heroImageUrl && (
+          <div className="overflow-hidden rounded-xl border border-white/10">
+            <img
+              src={project.heroImageUrl}
+              alt={`${project.title} hero render`}
+              className="w-full object-cover"
+              style={{ maxHeight: "480px" }}
+            />
+          </div>
+        )}
+
         <ModelViewer modelUrl={project.modelUrl} title={project.title} />
 
         <section className="grid gap-4 lg:grid-cols-2">
@@ -97,13 +109,24 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               </p>
               <p className="inline-flex items-center gap-2">
                 <Layers className="size-4 text-zinc-400" />
-                Texture: {" "}
+                Texture:{" "}
                 <span className="font-medium text-zinc-100">{project.textureResolution}</span>
               </p>
               <p className="inline-flex items-center gap-2">
                 <Workflow className="size-4 text-zinc-400" />
                 Pipeline: <span className="font-medium text-zinc-100">{project.pipeline}</span>
               </p>
+              {/* Blend file download */}
+              {project.blendFileUrl && (
+                <a
+                  href={project.blendFileUrl}
+                  download
+                  className="mt-1 inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/[0.03] px-3 py-2 text-xs font-medium text-zinc-100 transition-colors hover:border-cyan-200/30 hover:bg-cyan-200/5"
+                >
+                  <Download className="size-3.5 text-cyan-200" />
+                  Download Source File (.blend)
+                </a>
+              )}
             </CardContent>
           </Card>
 
@@ -122,6 +145,33 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </CardContent>
           </Card>
         </section>
+
+        {/* Gallery images */}
+        {project.galleryImageUrls && project.galleryImageUrls.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="inline-flex items-center gap-2 font-heading text-lg font-semibold text-white">
+              <ImageIcon className="size-4 text-cyan-200" />
+              Gallery
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {project.galleryImageUrls.map((url, i) => (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group overflow-hidden rounded-xl border border-white/10 transition-colors hover:border-cyan-200/30"
+                >
+                  <img
+                    src={url}
+                    alt={`${project.title} render ${i + 1}`}
+                    className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );

@@ -18,6 +18,9 @@ export type PortfolioProject = {
   descriptionLong: string;
   modelUrl: string;
   sourcePath: string;
+  thumbnailImageUrl?: string;
+  heroImageUrl?: string;
+  galleryImageUrls?: string[];
   blendFileUrl?: string;
   softwareUsed: string[];
   polycount: string;
@@ -36,6 +39,7 @@ export type PortfolioProjectPreview = Pick<
   | "year"
   | "descriptionShort"
   | "modelUrl"
+  | "thumbnailImageUrl"
   | "sizeMb"
   | "isFeatured"
 >;
@@ -46,4 +50,42 @@ export const CATEGORY_LABELS: Record<ProjectCategory, string> = {
   character: "Character",
   vehicle: "Vehicle",
   other: "Other",
+};
+
+export type SocialLink = { label: string; url: string };
+
+export type CreatorProfile = {
+  name: string;
+  roleTitle: string;
+  bioShort: string;
+  bioLong: string;
+  location: string;
+  email: string;
+  skills: string[];
+  softwareList: string[];
+  socialLinks: SocialLink[];
+};
+
+export const CREATOR_PROFILE_DEFAULTS: CreatorProfile = {
+  name: "HILMI",
+  roleTitle: "3D Environment & Creature Artist",
+  bioShort: "Membangun aset 3D stylized-realistic untuk game, cinematic, dan visual storytelling.",
+  bioLong:
+    "Fokus pada pipeline production-ready dari blockout hingga final polish. Portfolio ini menampilkan eksplorasi creature, environment, serta props dengan pendekatan optimasi untuk realtime.",
+  location: "Jakarta, GMT+7",
+  email: "",
+  skills: [
+    "Hard-surface modeling",
+    "Creature sculpting",
+    "PBR texturing",
+    "Realtime optimization",
+    "Look development",
+  ],
+  softwareList: ["Blender", "Substance Painter", "ZBrush", "Marmoset Toolbag", "Unreal Engine"],
+  socialLinks: [
+    { label: "LinkedIn", url: "https://linkedin.com" },
+    { label: "ArtStation", url: "https://artstation.com" },
+    { label: "Behance", url: "https://behance.net" },
+    { label: "Instagram", url: "https://instagram.com" },
+  ],
 };

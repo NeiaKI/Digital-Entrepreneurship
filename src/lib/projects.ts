@@ -5,43 +5,27 @@ import { cache } from "react";
 import {
   CATEGORY_LABELS,
   PROJECT_CATEGORIES,
+  CREATOR_PROFILE_DEFAULTS,
+  type CreatorProfile,
   type PortfolioProject,
   type PortfolioProjectPreview,
   type ProjectCategory,
 } from "@/lib/portfolio-shared";
+import { loadMetaOverride } from "@/lib/metadata";
 
-export { CATEGORY_LABELS, PROJECT_CATEGORIES };
-export type { PortfolioProject, PortfolioProjectPreview, ProjectCategory };
+export { CATEGORY_LABELS, PROJECT_CATEGORIES, CREATOR_PROFILE_DEFAULTS as CREATOR_PROFILE };
+export type { CreatorProfile, PortfolioProject, PortfolioProjectPreview, ProjectCategory };
 
-export const CREATOR_PROFILE = {
-  name: "HILMI",
-  roleTitle: "3D Environment & Creature Artist",
-  bioShort:
-    "Membangun aset 3D stylized-realistic untuk game, cinematic, dan visual storytelling.",
-  bioLong:
-    "Fokus pada pipeline production-ready dari blockout hingga final polish. Portfolio ini menampilkan eksplorasi creature, environment, serta props dengan pendekatan optimasi untuk realtime.",
-  location: "Jakarta, GMT+7",
-  skills: [
-    "Hard-surface modeling",
-    "Creature sculpting",
-    "PBR texturing",
-    "Realtime optimization",
-    "Look development",
-  ],
-  softwareList: [
-    "Blender",
-    "Substance Painter",
-    "ZBrush",
-    "Marmoset Toolbag",
-    "Unreal Engine",
-  ],
-  socialLinks: [
-    { label: "LinkedIn", url: "https://linkedin.com" },
-    { label: "ArtStation", url: "https://artstation.com" },
-    { label: "Behance", url: "https://behance.net" },
-    { label: "Instagram", url: "https://instagram.com" },
-  ],
-} as const;
+export const getCreatorProfile = cache(async (): Promise<CreatorProfile> => {
+  try {
+    const profilePath = path.join(process.cwd(), "data", "profile.json");
+    const raw = await fs.readFile(profilePath, "utf-8");
+    const json = JSON.parse(raw) as Partial<CreatorProfile>;
+    return { ...CREATOR_PROFILE_DEFAULTS, ...json };
+  } catch {
+    return CREATOR_PROFILE_DEFAULTS;
+  }
+});
 
 const ASSET_ROOT = path.join(process.cwd(), "3D-ASSET");
 
@@ -52,6 +36,13 @@ function toModelUrl(relativePath: string): string {
     .join("/");
 
   return `/models/${encodedPath}`;
+}
+
+function toAssetUrl(relativeDir: string, filename: string): string {
+  const dirSegments = relativeDir === "."
+    ? []
+    : relativeDir.split(path.sep).map((s) => encodeURIComponent(s));
+  return `/assets/${[...dirSegments, encodeURIComponent(filename)].join("/")}`;
 }
 
 function sanitizeName(fileName: string): string {
@@ -195,52 +186,90 @@ export const getAllProjects = cache(async (): Promise<PortfolioProject[]> => {
   const projects = await Promise.all(
     glbRelativePaths.map(async (relativePath, index) => {
       const absolutePath = path.join(ASSET_ROOT, relativePath);
-      const stats = await fs.stat(absolutePath);
+      const [stats, meta] = await Promise.all([
+        fs.stat(absolutePath),
+        loadMetaOverride(absolutePath),
+      ]);
       const fileSizeMb = Number((stats.size / (1024 * 1024)).toFixed(1));
 
       const cleanName = sanitizeName(path.basename(relativePath));
-      const title = titleCase(cleanName);
-      const category = inferCategory(relativePath);
+      const inferredTitle = titleCase(cleanName);
+      const title = meta.title ?? inferredTitle;
+
+      const inferredCategory = inferCategory(relativePath);
+      const category = meta.category ?? inferredCategory;
+
       const { short, long } = inferDescriptions(title, category);
       const slug = `${slugify(title)}-${index + 1}`;
+
+      const relativeDir = path.dirname(relativePath);
 
       const project: PortfolioProject = {
         id: `project-${index + 1}`,
         slug,
         title,
         category,
-        year: 2026,
-        descriptionShort: short,
-        descriptionLong: long,
+        year: meta.year ?? 2026,
+        descriptionShort: meta.descriptionShort ?? short,
+        descriptionLong: meta.descriptionLong ?? long,
         modelUrl: toModelUrl(relativePath),
         sourcePath: relativePath,
-        softwareUsed: inferSoftware(category),
-        polycount: inferPolycount(fileSizeMb),
-        textureResolution: inferTextureResolution(fileSizeMb),
-        pipeline: inferPipeline(category),
+        thumbnailImageUrl: meta.thumbnailImage
+          ? toAssetUrl(relativeDir, meta.thumbnailImage)
+          : undefined,
+        heroImageUrl: meta.heroImage
+          ? toAssetUrl(relativeDir, meta.heroImage)
+          : undefined,
+        galleryImageUrls: meta.galleryImages?.map((img) =>
+          toAssetUrl(relativeDir, img),
+        ),
+        blendFileUrl: meta.blendFile
+          ? toAssetUrl(relativeDir, meta.blendFile)
+          : undefined,
+        softwareUsed: meta.softwareUsed ?? inferSoftware(category),
+        polycount: meta.polycount ?? inferPolycount(fileSizeMb),
+        textureResolution: meta.textureResolution ?? inferTextureResolution(fileSizeMb),
+        pipeline: meta.pipeline ?? inferPipeline(category),
         sizeMb: fileSizeMb,
         isFeatured: false,
-      };
+        _featuredPinned: meta.isFeatured,
+      } as PortfolioProject & { _featuredPinned?: boolean };
 
       return project;
     }),
   );
 
-  const sorted = projects.sort((a, b) => {
-    if (a.category !== b.category) {
-      return PROJECT_CATEGORIES.indexOf(a.category) - PROJECT_CATEGORIES.indexOf(b.category);
-    }
-    return a.title.localeCompare(b.title);
-  });
+  const sorted = (projects as Array<PortfolioProject & { _featuredPinned?: boolean }>).sort(
+    (a, b) => {
+      if (a.category !== b.category) {
+        return PROJECT_CATEGORIES.indexOf(a.category) - PROJECT_CATEGORIES.indexOf(b.category);
+      }
+      return a.title.localeCompare(b.title);
+    },
+  );
 
-  const featuredPool = [...sorted]
-    .sort((a, b) => b.sizeMb - a.sizeMb)
-    .slice(0, 6)
-    .map((project) => project.id);
+  const pinnedFeaturedIds = new Set(
+    sorted.filter((p) => p._featuredPinned === true).map((p) => p.id),
+  );
+  const pinnedNotFeaturedIds = new Set(
+    sorted.filter((p) => p._featuredPinned === false).map((p) => p.id),
+  );
 
-  return sorted.map((project) => ({
+  const autoSlots = Math.max(0, 6 - pinnedFeaturedIds.size);
+  const autoFeaturedIds = new Set(
+    [...sorted]
+      .filter((p) => p._featuredPinned === undefined)
+      .sort((a, b) => b.sizeMb - a.sizeMb)
+      .slice(0, autoSlots)
+      .map((p) => p.id),
+  );
+
+  return sorted.map(({ _featuredPinned, ...project }) => ({
     ...project,
-    isFeatured: featuredPool.includes(project.id),
+    isFeatured:
+      pinnedNotFeaturedIds.has(project.id)
+        ? false
+        : pinnedFeaturedIds.has(project.id) || autoFeaturedIds.has(project.id),
   }));
 });
 
@@ -265,6 +294,7 @@ export function toProjectPreview(project: PortfolioProject): PortfolioProjectPre
     year: project.year,
     descriptionShort: project.descriptionShort,
     modelUrl: project.modelUrl,
+    thumbnailImageUrl: project.thumbnailImageUrl,
     sizeMb: project.sizeMb,
     isFeatured: project.isFeatured,
   };

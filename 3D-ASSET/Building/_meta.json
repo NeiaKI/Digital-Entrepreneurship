@@ -1,0 +1,5 @@
+{
+  "category": "environment",
+  "softwareUsed": ["Blender", "Substance Painter", "Unreal Engine"],
+  "pipeline": "Blockout -> high-poly sculpt -> retopo -> UV unwrap -> PBR bake -> realtime polish"
+}

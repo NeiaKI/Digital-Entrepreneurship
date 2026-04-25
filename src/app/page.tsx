@@ -8,16 +8,17 @@ import { ProjectCard } from "@/components/project-card";
 import { SiteNavbar } from "@/components/site-navbar";
 import { buttonVariants } from "@/components/ui/button";
 import {
-  CREATOR_PROFILE,
   getAllProjects,
   getFeaturedProjects,
+  getCreatorProfile,
   toProjectPreview,
 } from "@/lib/projects";
 
 export default async function Home() {
-  const [allProjects, featuredProjects] = await Promise.all([
+  const [allProjects, featuredProjects, profile] = await Promise.all([
     getAllProjects(),
     getFeaturedProjects(),
+    getCreatorProfile(),
   ]);
 
   const portfolioPreviews = allProjects.map(toProjectPreview);
@@ -41,10 +42,10 @@ export default async function Home() {
 
               <div className="space-y-4">
                 <h1 className="font-heading text-4xl leading-tight font-semibold text-white sm:text-5xl lg:text-6xl">
-                  {CREATOR_PROFILE.name} . {CREATOR_PROFILE.roleTitle}
+                  {profile.name} . {profile.roleTitle}
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-zinc-300 sm:text-lg">
-                  {CREATOR_PROFILE.bioShort} Portfolio ini dirancang untuk recruiter dan client
+                  {profile.bioShort} Portfolio ini dirancang untuk recruiter dan client
                   agar bisa evaluasi style visual, kualitas teknis, dan kesiapan pipeline secara
                   cepat.
                 </p>
@@ -124,7 +125,11 @@ export default async function Home() {
 
         <PortfolioSection projects={portfolioPreviews} />
         <AboutSection />
-        <ContactSection />
+        <ContactSection
+          email={profile.email}
+          location={profile.location}
+          socialLinks={profile.socialLinks}
+        />
       </main>
 
       <footer className="relative z-10 border-t border-white/10 bg-black/35 py-5">
