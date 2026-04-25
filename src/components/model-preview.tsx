@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { type RefObject, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { AdaptiveDpr, Center, OrbitControls, Preload, useGLTF } from "@react-three/drei";
 import type { Group } from "three";
@@ -67,7 +67,7 @@ export function ModelPreview({ modelUrl, autoRotate = true }: ModelPreviewProps)
         // Optimization: only render when needed
         frameloop="always"
         // Safety: attach events only to this container to prevent null window errors
-        eventSource={containerRef}
+        eventSource={containerRef as RefObject<HTMLElement>}
         eventPrefix="client"
       >
         <Suspense fallback={null}>
