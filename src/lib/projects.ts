@@ -27,7 +27,7 @@ export const getCreatorProfile = cache(async (): Promise<CreatorProfile> => {
   }
 });
 
-const ASSET_ROOT = path.join(process.cwd(), "3D-ASSET");
+const ASSET_ROOT = path.join(process.cwd(), "public", "3D-ASSET");
 
 function toModelUrl(relativePath: string): string {
   const encodedPath = relativePath
@@ -35,14 +35,14 @@ function toModelUrl(relativePath: string): string {
     .map((segment) => encodeURIComponent(segment))
     .join("/");
 
-  return `/models/${encodedPath}`;
+  return `/3D-ASSET/${encodedPath}`;
 }
 
 function toAssetUrl(relativeDir: string, filename: string): string {
   const dirSegments = relativeDir === "."
     ? []
     : relativeDir.split(path.sep).map((s) => encodeURIComponent(s));
-  return `/assets/${[...dirSegments, encodeURIComponent(filename)].join("/")}`;
+  return `/3D-ASSET/${[...dirSegments, encodeURIComponent(filename)].join("/")}`;
 }
 
 function sanitizeName(fileName: string): string {

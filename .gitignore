@@ -44,7 +44,4 @@ next-env.d.ts
 web/.next/
 web/out/
 
-# large 3D assets (stored locally only)
-3D-ASSET/Animal/Sea/portoloses.glb
-3D-ASSET/Equipment/topengyunani.glb
-3D-ASSET/Animal/Sea/orochi.glb
+# large 3D assets — delete files above 50MB before committing to vercel-deploy branch
