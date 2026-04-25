@@ -3,6 +3,7 @@
 import {
   Component,
   type ReactNode,
+  type RefObject,
   Suspense,
   useEffect,
   useMemo,
@@ -266,7 +267,7 @@ export function ModelViewer({ modelUrl, title }: ModelViewerProps) {
               camera={{ position: [0, 1.8, 4.5], fov: 42 }}
               dpr={[1, 2]}
               gl={{ antialias: true, powerPreference: "high-performance" }}
-              eventSource={containerRef}
+              eventSource={containerRef as RefObject<HTMLElement>}
               eventPrefix="client"
             >
               <Suspense fallback={<LoadingFallback />}>
