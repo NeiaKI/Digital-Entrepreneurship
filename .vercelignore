@@ -1,2 +1,4 @@
-# Local 3D assets (untracked, large files — served from public/3D-ASSET/ instead)
-3D-ASSET/
+# Local root 3D-ASSET/ (untracked, large files not in git)
+# Using /3D-ASSET/ (with leading slash) to match ONLY the root directory,
+# NOT public/3D-ASSET/ which contains the committed static assets.
+/3D-ASSET/
